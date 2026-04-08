@@ -1,0 +1,620 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+  <title>💗 리엘 클랜 💗</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link href="https://fonts.googleapis.com/css2?family=Nanum+Gothic:wght@400;700;800&family=Black+Han+Sans&family=Gowun+Dodum&display=swap" rel="stylesheet"/>
+  <style>
+    :root{
+      --dp:#e8799a;--mid:#f4a7bf;--lt:#fce4ec;
+      --pale:#fff0f5;--white:#fff;
+      --td:#5a3048;--tm:#9e5b78;
+      --gold:#ffd6e7;--lilac:#e8b4d8;
+      --sh:rgba(232,121,154,.35);
+      --teal:#b2e0f0;
+    }
+    *{box-sizing:border-box;margin:0;padding:0}
+    html{scroll-behavior:smooth}
+    ::-webkit-scrollbar{width:8px}
+    ::-webkit-scrollbar-track{background:var(--pale)}
+    ::-webkit-scrollbar-thumb{background:var(--mid);border-radius:99px}
+
+    /* CURSOR */
+    #cursor{display:none}
+    #cursor-ring{display:none}
+    canvas#fx{position:fixed;inset:0;pointer-events:none;z-index:1}
+
+    body{
+      font-family:'Gowun Dodum','Nanum Gothic',sans-serif;
+      background:var(--pale);color:var(--td);overflow-x:hidden;
+    }
+
+    /* ════ NAV ════ */
+    nav{
+      position:fixed;top:0;width:100%;z-index:500;
+      background:rgba(255,255,255,.85);backdrop-filter:blur(16px);
+      border-bottom:2px solid var(--mid);height:58px;
+      display:flex;align-items:center;justify-content:space-between;
+      padding:0 2rem;box-shadow:0 3px 24px var(--sh);
+    }
+    .nav-logo{
+      font-family:'Black Han Sans',sans-serif;
+      font-size:1.25rem;color:var(--dp);text-decoration:none;
+      display:flex;align-items:center;gap:.4rem;
+    }
+    .nav-logo .spin{display:inline-block;animation:spin 4s linear infinite}
+    @keyframes spin{to{transform:rotate(360deg)}}
+    .nav-links{display:flex;gap:.5rem;list-style:none}
+    .nav-links a{
+      text-decoration:none;color:var(--tm);font-size:.83rem;font-weight:700;
+      padding:4px 12px;border-radius:20px;border:1.5px solid transparent;
+      transition:background .2s,color .2s,transform .2s,border-color .2s;
+    }
+    .nav-links a:hover{background:var(--lt);color:var(--dp);border-color:var(--mid);transform:scale(1.08)}
+    .nav-links a.active{background:var(--lt);color:var(--dp);border-color:var(--mid)}
+
+    /* ════ HERO ════ */
+    #hero{
+      min-height:100vh;display:flex;align-items:center;justify-content:center;
+      text-align:center;padding:80px 2rem 4rem;position:relative;overflow:hidden;
+      background:
+        radial-gradient(ellipse 80% 60% at 15% 20%,#ffe0ee 0%,transparent 55%),
+        radial-gradient(ellipse 70% 70% at 85% 85%,#eed8ff 0%,transparent 55%),
+        radial-gradient(ellipse 50% 60% at 55% 50%,#fce4ec 0%,transparent 65%),
+        #fff5f8;
+    }
+    .blob{position:absolute;border-radius:50%;filter:blur(50px);opacity:.35;animation:blobmove 9s ease-in-out infinite alternate}
+    .b1{width:320px;height:320px;background:#f9c5d5;top:-80px;left:-80px}
+    .b2{width:280px;height:280px;background:#e8b4d8;bottom:-60px;right:-60px;animation-delay:-4s}
+    .b3{width:200px;height:200px;background:var(--teal);top:35%;right:2%;animation-delay:-7s}
+    @keyframes blobmove{from{transform:translate(0,0) scale(1)}to{transform:translate(30px,25px) scale(1.12)}}
+
+    .hero-since{font-size:.8rem;letter-spacing:4px;color:var(--tm);margin-bottom:.8rem;text-transform:uppercase;opacity:0;animation:fup .6s .15s forwards}
+    .hero-tags{display:flex;flex-wrap:wrap;justify-content:center;gap:.4rem;margin-bottom:1.4rem;opacity:0;animation:fup .6s .3s forwards}
+    .htag{background:white;border:1.5px solid var(--mid);border-radius:99px;padding:5px 14px;font-size:.77rem;color:var(--dp);font-weight:800;box-shadow:0 3px 10px var(--sh)}
+    .hero-title{
+      font-family:'Black Han Sans',sans-serif;
+      font-size:clamp(3.5rem,9vw,7rem);color:var(--dp);
+      letter-spacing:8px;line-height:1;display:inline-block;
+      text-shadow:4px 4px 0 rgba(244,167,191,.55),8px 8px 0 rgba(244,167,191,.2);
+      opacity:0;animation:fup .7s .45s forwards;position:relative;
+    }
+    .hero-title .crown{position:absolute;top:-20px;right:-30px;font-size:1.8rem;animation:hb 1.4s ease-in-out infinite}
+    @keyframes hb{0%,100%{transform:scale(1) rotate(-12deg)}50%{transform:scale(1.3) rotate(12deg)}}
+    .hero-desc{font-size:1.05rem;color:var(--tm);margin:1.4rem 0 2rem;line-height:1.95;opacity:0;animation:fup .6s .6s forwards}
+    .hero-desc strong{color:var(--dp)}
+    .hero-stats{display:flex;justify-content:center;flex-wrap:wrap;gap:.9rem;margin-bottom:2rem;opacity:0;animation:fup .6s .75s forwards}
+    .hstat{background:rgba(255,255,255,.9);border:2px solid var(--mid);border-radius:16px;padding:.7rem 1.3rem;text-align:center;box-shadow:0 4px 16px var(--sh);transition:transform .2s}
+    .hstat:hover{transform:translateY(-5px) rotate(-2deg)}
+    .hstat-val{font-family:'Black Han Sans',sans-serif;font-size:1.1rem;color:var(--dp)}
+    .hstat-lbl{font-size:.7rem;color:var(--tm);margin-top:2px}
+    .hero-cta{opacity:0;animation:fup .6s .9s forwards}
+    .hero-btn{
+      display:inline-flex;align-items:center;gap:.5rem;
+      background:linear-gradient(135deg,var(--dp),var(--lilac));
+      color:white;padding:14px 38px;border-radius:99px;
+      text-decoration:none;font-weight:800;font-size:1rem;
+      box-shadow:0 6px 24px var(--sh);letter-spacing:1px;
+      position:relative;overflow:hidden;transition:transform .2s,box-shadow .2s;
+    }
+    .hero-btn::before{content:'';position:absolute;inset:0;background:linear-gradient(135deg,transparent 40%,rgba(255,255,255,.28) 60%,transparent 80%);transform:translateX(-120%);transition:.6s}
+    .hero-btn:hover::before{transform:translateX(120%)}
+    .hero-btn:hover{transform:translateY(-4px);box-shadow:0 10px 32px var(--sh)}
+    @keyframes fup{from{opacity:0;transform:translateY(28px)}to{opacity:1;transform:translateY(0)}}
+
+    /* ════ SECTION BASE ════ */
+    section{position:relative;z-index:2;padding:5.5rem 2rem}
+    .container{max-width:920px;margin:0 auto}
+    .sec-title{font-family:'Black Han Sans',sans-serif;font-size:1.9rem;color:var(--dp);text-align:center;letter-spacing:2px;margin-bottom:.3rem}
+    .sec-rule{display:flex;align-items:center;justify-content:center;gap:.7rem;margin-bottom:.3rem}
+    .sec-rule::before,.sec-rule::after{content:'';flex:1;max-width:80px;height:2px}
+    .sec-rule::before{background:linear-gradient(90deg,transparent,var(--mid))}
+    .sec-rule::after{background:linear-gradient(90deg,var(--mid),transparent)}
+    .sec-sub{text-align:center;color:var(--tm);font-size:.88rem;margin-bottom:2.5rem}
+
+    /* ════ INTRO ════ */
+    #intro{background:radial-gradient(ellipse 55% 45% at 5% 95%,#fce4ec 0%,transparent 55%),white}
+    .intro-grid{display:grid;grid-template-columns:1fr 1fr;gap:1.4rem}
+    .icard{
+      background:var(--pale);border:2px solid var(--mid);border-radius:22px;
+      padding:1.8rem 1.5rem;text-align:center;box-shadow:0 6px 22px var(--sh);
+      position:relative;overflow:hidden;transition:transform .3s,box-shadow .3s;
+    }
+    .icard::before{content:'';position:absolute;top:0;left:0;right:0;height:4px;background:linear-gradient(90deg,var(--dp),var(--lilac),var(--dp))}
+    .icard:hover{transform:translateY(-9px) rotate(.6deg);box-shadow:0 16px 36px var(--sh)}
+    .icard .ico{font-size:2.6rem;display:block;margin-bottom:.8rem;animation:wg 3s ease-in-out infinite}
+    .icard:nth-child(2) .ico{animation-delay:-.5s}
+    .icard:nth-child(3) .ico{animation-delay:-1s}
+    .icard:nth-child(4) .ico{animation-delay:-1.5s}
+    @keyframes wg{0%,100%{transform:rotate(-6deg) scale(1)}50%{transform:rotate(6deg) scale(1.1)}}
+    .icard h3{font-family:'Black Han Sans',sans-serif;color:var(--dp);font-size:1.05rem;margin-bottom:.5rem;letter-spacing:1px}
+    .icard p{font-size:.86rem;line-height:1.8;color:var(--tm)}
+
+    /* ════ JOIN CONDITIONS ════ */
+    #join{
+      background:
+        radial-gradient(ellipse 70% 55% at 92% 8%,#e8b4d8 0%,transparent 50%),
+        radial-gradient(ellipse 55% 45% at 8% 85%,#fce4ec 0%,transparent 50%),
+        #fdf0f6;
+    }
+    .alert-banner{
+      max-width:680px;margin:0 auto 2rem;
+      background:linear-gradient(135deg,var(--dp),#d4547a);
+      border-radius:16px;padding:1.1rem 1.6rem;
+      text-align:center;color:white;font-weight:800;font-size:.93rem;
+      box-shadow:0 6px 20px var(--sh);letter-spacing:.5px;
+      animation:glow 2.5s ease-in-out infinite;
+    }
+    @keyframes glow{0%,100%{box-shadow:0 6px 20px var(--sh)}50%{box-shadow:0 8px 34px rgba(232,121,154,.65)}}
+    .join-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:1.2rem;max-width:820px;margin:0 auto}
+    .jcard{
+      background:white;border-radius:20px;padding:1.5rem;
+      border-top:5px solid var(--dp);box-shadow:0 4px 18px var(--sh);
+      transition:transform .25s;position:relative;overflow:hidden;
+    }
+    .jcard::after{content:attr(data-e);position:absolute;right:-12px;bottom:-12px;font-size:4rem;opacity:.11}
+    .jcard:hover{transform:translateY(-7px)}
+    .jcard.sp  {border-color:var(--lilac)}
+    .jcard.art {border-color:#f9c5d5}
+    .jcard.exec{border-color:#b2d8f0}
+    .jtitle{display:flex;align-items:center;gap:.5rem;font-family:'Black Han Sans',sans-serif;font-size:1rem;color:var(--dp);margin-bottom:.8rem}
+    .jcard.sp   .jtitle{color:#9e5bbd}
+    .jcard.art  .jtitle{color:#d4547a}
+    .jcard.exec .jtitle{color:#5b8ebf}
+    .jbadge{font-size:.67rem;font-weight:800;padding:2px 10px;border-radius:99px;background:var(--lt);color:var(--dp)}
+    .jcard.sp   .jbadge{background:#f0e0ff;color:#9e5bbd}
+    .jcard.art  .jbadge{background:#ffe0ee;color:#d4547a}
+    .jcard.exec .jbadge{background:#e0f0ff;color:#5b8ebf}
+    .jcard ul{list-style:none;font-size:.85rem;line-height:2.1;color:var(--tm)}
+    .jcard ul li::before{content:'✦ ';color:var(--dp)}
+    .jcard ul a{color:var(--dp);font-weight:700}
+
+    /* ════ MEMBERS ════ */
+    #members{background:radial-gradient(ellipse 50% 38% at 50% 0%,#fce4ec 0%,transparent 55%),white}
+    .tier-wrap{margin-bottom:2.4rem}
+    .tier-hd{
+      font-family:'Black Han Sans',sans-serif;font-size:.88rem;letter-spacing:3px;
+      text-transform:uppercase;color:var(--tm);text-align:center;margin-bottom:1.1rem;
+      display:flex;align-items:center;gap:.8rem;justify-content:center;
+    }
+    .tier-hd::before,.tier-hd::after{content:'';width:40px;height:1px;background:var(--mid)}
+    .mgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(128px,1fr));gap:1rem}
+    .mcard{
+      background:var(--pale);border:2px solid var(--mid);border-radius:20px;
+      padding:1.3rem .8rem;text-align:center;box-shadow:0 4px 14px var(--sh);
+      transition:transform .25s,box-shadow .25s;position:relative;
+    }
+    .mcard:hover{transform:translateY(-9px) scale(1.04);box-shadow:0 12px 32px var(--sh)}
+    .mcard.master {background:linear-gradient(160deg,#fff5f8,#ffe0ee);border-color:var(--dp);border-width:3px}
+    .mcard.sub    {background:linear-gradient(160deg,#f8f0ff,#f0e0ff);border-color:var(--lilac)}
+    .mcard.exec   {background:linear-gradient(160deg,#f0f8ff,#e0f0ff);border-color:#b2d8f0}
+    .mcard.master::before{content:'✨';position:absolute;top:-10px;right:-8px;font-size:1.1rem;animation:hb 1.5s ease-in-out infinite}
+    .mavatar{width:54px;height:54px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:1.5rem;margin:0 auto .7rem;border:3px solid white;box-shadow:0 3px 10px var(--sh)}
+    .mcard.master .mavatar{background:linear-gradient(135deg,#f9c5d5,#f4a7bf)}
+    .mcard.sub    .mavatar{background:linear-gradient(135deg,#e8b4d8,#d4a0e8)}
+    .mcard.exec   .mavatar{background:linear-gradient(135deg,#b2d8f0,#9bc8e8)}
+    .mcard        .mavatar{background:linear-gradient(135deg,var(--mid),var(--gold))}
+    .mname{font-weight:800;font-size:.88rem;color:var(--td);margin-bottom:4px}
+    .mrole{font-size:.69rem;padding:2px 10px;border-radius:99px;font-weight:800;display:inline-block}
+    .mcard.master .mrole{background:#ffe0ee;color:#d4547a}
+    .mcard.sub    .mrole{background:#f0e0ff;color:#9e5bbd}
+    .mcard.exec   .mrole{background:#e0f0ff;color:#5b8ebf}
+    .mcard        .mrole{background:var(--lt);color:var(--dp)}
+
+    /* ════ 가입 및 신고 ════ */
+    #apply{
+      background:
+        radial-gradient(ellipse 65% 50% at 5% 10%,#ffe0ee 0%,transparent 55%),
+        radial-gradient(ellipse 60% 50% at 95% 90%,#e8b4d8 0%,transparent 55%),
+        #fdf0f6;
+    }
+    .apply-wrap{max-width:740px;margin:0 auto;display:grid;grid-template-columns:1fr 1fr;gap:1.4rem}
+    @media(max-width:680px){.apply-wrap{grid-template-columns:1fr}}
+
+    .apply-box{
+      background:white;border-radius:22px;padding:2rem;
+      box-shadow:0 6px 24px var(--sh);border-top:5px solid var(--dp);
+      position:relative;overflow:hidden;display:flex;flex-direction:column;gap:1rem;
+    }
+    .apply-box.report-box{border-top-color:var(--lilac)}
+    .apply-box::after{content:attr(data-e);position:absolute;right:-10px;bottom:-10px;font-size:5rem;opacity:.08}
+    .apply-box-title{
+      font-family:'Black Han Sans',sans-serif;
+      font-size:1.1rem;color:var(--dp);
+      display:flex;align-items:center;gap:.5rem;letter-spacing:1px;
+    }
+    .report-box .apply-box-title{color:#9e5bbd}
+
+    /* 양식 카드 */
+    .form-template{
+      background:var(--pale);border:1.5px solid var(--mid);
+      border-radius:14px;padding:1rem 1.2rem;
+      display:flex;flex-direction:column;gap:.5rem;
+    }
+    .tpl-line{display:flex;align-items:baseline;gap:.5rem;font-size:.85rem}
+    .tpl-key{
+      font-family:'Black Han Sans',sans-serif;font-size:.82rem;
+      color:var(--dp);letter-spacing:.5px;white-space:nowrap;
+    }
+    .tpl-val{
+      color:var(--tm);font-size:.8rem;
+      border-bottom:1px dashed var(--mid);flex:1;padding-bottom:1px;
+    }
+    .form-note{
+      font-size:.78rem;color:var(--tm);line-height:1.7;
+      background:var(--pale);border-radius:10px;
+      padding:.7rem 1rem;border-left:3px solid var(--mid);
+    }
+    .form-note span{color:var(--dp);font-weight:800}
+
+    .apply-btn-row{display:flex;flex-direction:column;gap:.7rem;margin-top:auto}
+    .copy-btn{
+      display:inline-flex;align-items:center;justify-content:center;gap:.5rem;
+      background:linear-gradient(135deg,var(--dp),var(--lilac));
+      color:white;padding:11px 0;border-radius:99px;
+      font-weight:800;font-size:.88rem;border:none;width:100%;
+      box-shadow:0 4px 16px var(--sh);transition:transform .2s,box-shadow .2s;
+      letter-spacing:.5px;cursor:pointer;
+    }
+    .copy-btn:hover{transform:translateY(-3px);box-shadow:0 8px 24px var(--sh)}
+    .report-box .copy-btn{background:linear-gradient(135deg,var(--lilac),#c890e0)}
+    .kakao-btn{
+      display:inline-flex;align-items:center;justify-content:center;gap:.5rem;
+      background:white;border:2px solid var(--mid);
+      color:var(--dp);padding:10px 0;border-radius:99px;
+      font-weight:800;font-size:.85rem;text-decoration:none;width:100%;
+      transition:background .2s,transform .2s;
+    }
+    .kakao-btn:hover{background:var(--lt);transform:translateY(-2px)}
+
+    /* 복사 토스트 */
+    #toast{
+      position:fixed;bottom:5rem;left:50%;transform:translateX(-50%) translateY(20px);
+      background:var(--dp);color:white;
+      padding:.7rem 1.6rem;border-radius:99px;font-size:.88rem;font-weight:800;
+      box-shadow:0 4px 18px var(--sh);z-index:700;
+      opacity:0;transition:opacity .3s,transform .3s;pointer-events:none;
+    }
+    #toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+
+    /* ════ FOOTER ════ */
+    footer{
+      background:linear-gradient(160deg,var(--dp),#c4547a);
+      color:white;text-align:center;padding:3.5rem 2rem;
+      position:relative;overflow:hidden;z-index:2;
+    }
+    footer::before{
+      content:'💗 💕 🌸 ✨ 💗 💕 🌸 ✨ 💗 💕';
+      position:absolute;top:0;left:0;right:0;font-size:1.2rem;
+      letter-spacing:8px;opacity:.14;white-space:nowrap;overflow:hidden;
+    }
+    .flogo{font-family:'Black Han Sans',sans-serif;font-size:2rem;letter-spacing:4px;margin-bottom:.5rem}
+    .fhearts{font-size:1.6rem;letter-spacing:10px;margin:1rem 0;animation:hb 1.5s ease-in-out infinite}
+    footer p{font-size:.85rem;opacity:.85;line-height:2}
+    footer a{color:rgba(255,255,255,.9);font-weight:800;text-decoration:none}
+    footer a:hover{text-decoration:underline}
+    .fsince{margin-top:1rem;font-size:.74rem;opacity:.58;letter-spacing:2px}
+
+
+    #scrollTop{
+      position:fixed;bottom:2rem;right:2rem;z-index:600;
+      width:48px;height:48px;border-radius:50%;
+      background:linear-gradient(135deg,var(--dp),var(--lilac));
+      color:white;border:none;font-size:1.2rem;
+      box-shadow:0 4px 18px var(--sh);
+      display:flex;align-items:center;justify-content:center;
+      opacity:0;pointer-events:none;
+      transition:transform .2s,opacity .3s;
+    }
+    #scrollTop.show{opacity:1;pointer-events:auto}
+    #scrollTop:hover{transform:scale(1.15) rotate(-12deg)}
+
+    /* REVEAL */
+    .rv{opacity:0;transform:translateY(28px);transition:opacity .6s ease,transform .6s ease}
+    .rv.on{opacity:1;transform:none}
+
+    @media(max-width:640px){
+      .intro-grid{grid-template-columns:1fr}
+      .nav-links a{font-size:.74rem;padding:3px 8px}
+      .hero-title{font-size:3.2rem}
+    }
+  </style>
+</head>
+<body>
+
+<div id="cursor"></div>
+<div id="cursor-ring"></div>
+<canvas id="fx"></canvas>
+
+<!-- NAV -->
+<nav>
+  <a class="nav-logo" href="#hero"><span class="spin">✿</span> 리엘 클랜</a>
+  <ul class="nav-links">
+    <li><a href="#intro">소개</a></li>
+    <li><a href="#join">가입조건</a></li>
+    <li><a href="#members">멤버</a></li>
+    <li><a href="#apply">가입·신고</a></li>
+  </ul>
+</nav>
+
+<!-- ════ HERO ════ -->
+<section id="hero">
+  <div class="blob b1"></div><div class="blob b2"></div><div class="blob b3"></div>
+  <div class="container" style="position:relative;z-index:2">
+    <p class="hero-since">✦ Since 2024. 10. 28 ✦</p>
+    <div class="hero-tags">
+      <span class="htag">🎮 좀비고등학교</span>
+      <span class="htag">💕 친목 중심</span>
+      <span class="htag">✨ 활동 클랜</span>
+      <span class="htag">🌸 신입 환영</span>
+    </div>
+    <h1 class="hero-title">리엘<span class="crown">💗</span></h1>
+    <p class="hero-desc">
+      좀비고등학교 속 가장 사랑스럽고 빛나는 클랜 💕<br/>
+      <strong>함께라서 더 따뜻한</strong>, 리엘에 오신 걸 환영해요!
+    </p>
+    <div class="hero-stats">
+      <div class="hstat"><div class="hstat-val">LV.14</div><div class="hstat-lbl">클랜 레벨</div></div>
+      <div class="hstat"><div class="hstat-val">EXP +25</div><div class="hstat-lbl">경험치 보너스</div></div>
+      <div class="hstat"><div class="hstat-val">MIN +25</div><div class="hstat-lbl">민첩 보너스</div></div>
+      <div class="hstat"><div class="hstat-val">CRI +1</div><div class="hstat-lbl">크리티컬</div></div>
+    </div>
+    <div class="hero-cta">
+      <a href="#apply" class="hero-btn">💌 지금 가입 신청하기</a>
+    </div>
+  </div>
+</section>
+
+<!-- ════ INTRO ════ -->
+<section id="intro">
+  <div class="container">
+    <div class="sec-rule"><h2 class="sec-title rv">💗 클랜 소개</h2></div>
+    <p class="sec-sub rv">리엘 클랜은 이런 곳이에요 ✨</p>
+    <div class="intro-grid">
+      <div class="icard rv"><span class="ico">🌸</span><h3>따뜻한 분위기</h3><p>서로 배려하고 응원하는 클랜이에요. 처음 오셔도 금방 친해질 수 있어요!</p></div>
+      <div class="icard rv"><span class="ico">🎮</span><h3>활발한 활동</h3><p>클랜전, 이벤트까지 함께해요. 같이하면 더 재밌으니까요 💕</p></div>
+      <div class="icard rv"><span class="ico">💬</span><h3>소통 우선</h3><p>오픈채팅으로 자유롭게 소통해요. 게임 얘기, 일상 얘기 모두 환영!</p></div>
+      <div class="icard rv"><span class="ico">🎨</span><h3>아트팀과 함께</h3><p>멋진 아트팀 멤버들과 함께하는 특별한 클랜이에요 ✨</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- ════ JOIN CONDITIONS ════ -->
+<section id="join">
+  <div class="container">
+    <div class="sec-rule"><h2 class="sec-title rv">💌 가입 조건</h2></div>
+    <p class="sec-sub rv">전형별로 조건이 달라요, 꼭 확인해 주세요 🌷</p>
+    <div class="alert-banner rv">
+      ⚠️ 아트부 제외 모든 전형 — <strong>30일 이상 미접속 시 무통보 제명</strong> ⚠️
+    </div>
+    <div class="join-grid">
+      <div class="jcard rv" data-e="💕">
+        <div class="jtitle"><span>💕</span> 친목 전형 <span class="jbadge">일반</span></div>
+        <ul><li>옾챗 <strong>필수</strong></li><li>가입 즉시 <strong>3만 기부</strong></li></ul>
+      </div>
+      <div class="jcard rv" data-e="✨">
+        <div class="jtitle"><span>✨</span> 일반 전형 <span class="jbadge">일반</span></div>
+        <ul><li>옾챗 X</li><li>가입 즉시 <strong>5만 기부</strong></li></ul>
+      </div>
+      <div class="jcard sp rv" data-e="🏆">
+        <div class="jtitle"><span>🏆</span> 특별 전형 <span class="jbadge">특별</span></div>
+        <ul><li>경랭 <strong>1000위 이내</strong></li><li>또는 <strong>간부진 스카웃</strong></li></ul>
+      </div>
+      <div class="jcard art rv" data-e="🎨">
+        <div class="jtitle"><span>🎨</span> 아트 전형 <span class="jbadge">아트</span></div>
+        <ul><li><a href="https://m.cafe.naver.com/ca-fe/web/cafes/onimobile/articles/16111737?useCafeId=false&amp;tc" target="_blank">📎 아트 신청 바로가기</a></li></ul>
+      </div>
+      <div class="jcard exec rv" data-e="👑">
+        <div class="jtitle"><span>👑</span> 간부 전형 <span class="jbadge">간부</span></div>
+        <ul><li><a href="https://m.cafe.naver.com/ca-fe/web/cafes/onimobile/articles/15951585?useCafeId=false&amp;tc" target="_blank">📎 간부 신청 바로가기</a></li></ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ════ MEMBERS ════ -->
+<section id="members">
+  <div class="container">
+    <div class="sec-rule"><h2 class="sec-title rv">🌸 멤버 목록</h2></div>
+    <p class="sec-sub rv">리엘 클랜의 소중한 가족들이에요 💕</p>
+
+    <div class="tier-wrap">
+      <div class="tier-hd">👑 MASTER</div>
+      <div style="display:flex;justify-content:center">
+        <div class="mcard master rv" style="width:130px">
+          <div class="mavatar">👑</div>
+          <div class="mname">서와</div>
+          <span class="mrole">MASTER</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="tier-wrap">
+      <div class="tier-hd">🌟 SUB MASTER</div>
+      <div style="display:flex;justify-content:center;gap:1rem;flex-wrap:wrap">
+        <div class="mcard sub rv" style="width:130px">
+          <div class="mavatar">🌟</div>
+          <div class="mname">케장콘</div>
+          <span class="mrole">SUB MASTER</span>
+        </div>
+        <div class="mcard sub rv" style="width:130px">
+          <div class="mavatar">🌟</div>
+          <div class="mname">심심</div>
+          <span class="mrole">SUB MASTER</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="tier-wrap">
+      <div class="tier-hd">🎨 ART TEAM</div>
+      <div class="mgrid">
+        <div class="mcard rv"><div class="mavatar">🎨</div><div class="mname">우핫</div><span class="mrole">ART</span></div>
+        <div class="mcard rv"><div class="mavatar">🌸</div><div class="mname">수호임</div><span class="mrole">ART</span></div>
+        <div class="mcard rv"><div class="mavatar">✨</div><div class="mname">유천</div><span class="mrole">ART</span></div>
+        <div class="mcard rv"><div class="mavatar">💫</div><div class="mname">인넥</div><span class="mrole">ART</span></div>
+        <div class="mcard rv"><div class="mavatar">🍀</div><div class="mname">초보</div><span class="mrole">ART</span></div>
+        <div class="mcard rv"><div class="mavatar">🌙</div><div class="mname">휴경</div><span class="mrole">ART</span></div>
+        <div class="mcard rv"><div class="mavatar">🌷</div><div class="mname">연곳</div><span class="mrole">ART</span></div>
+        <div class="mcard rv"><div class="mavatar">🎀</div><div class="mname">공일</div><span class="mrole">ART</span></div>
+        <div class="mcard rv"><div class="mavatar">🍓</div><div class="mname">차뉴</div><span class="mrole">ART</span></div>
+        <div class="mcard rv"><div class="mavatar">⭐</div><div class="mname">근허</div><span class="mrole">ART</span></div>
+      </div>
+    </div>
+    <p style="text-align:center;margin-top:1.5rem;color:var(--tm);font-size:.83rem">
+      💗 총 <strong>14명</strong> · 현재 멤버 모집 중 🌸
+    </p>
+  </div>
+</section>
+
+<!-- ════ 가입 및 신고 ════ -->
+<section id="apply">
+  <div class="container">
+    <div class="sec-rule"><h2 class="sec-title rv">💬 가입 및 신고</h2></div>
+    <p class="sec-sub rv">아래 양식을 복사해서 오픈채팅에 붙여넣기 해주세요 🌷</p>
+
+    <div class="apply-wrap rv">
+
+      <!-- 가입 양식 -->
+      <div class="apply-box" data-e="🌸">
+        <div class="apply-box-title">🌸 가입 양식</div>
+        <div class="form-template">
+          <div class="tpl-line"><span class="tpl-key">[가입양식]</span></div>
+          <div class="tpl-line"><span class="tpl-key">가입하는 인겜닉</span> <span class="tpl-val">닉네임 작성</span></div>
+          <div class="tpl-line"><span class="tpl-key">원하는 전형</span> <span class="tpl-val">전형 작성</span></div>
+        </div>
+        <div class="form-note">
+          💕 복사 후 오픈채팅에서 닉네임·전형을 직접 채워서 보내주세요<br/>
+          <span>친목 3만 · 일반 5만 · 특별/아트/간부 별도 확인</span>
+        </div>
+        <div class="apply-btn-row">
+          <button class="copy-btn" onclick="copyStatic('[가입양식]\n가입하는 인겜닉 : \n원하는 전형 : ','가입 양식')">📋 양식 복사하기</button>
+          <a href="https://open.kakao.com/o/gl8Uwjoh" target="_blank" class="kakao-btn">💬 오픈채팅 바로가기</a>
+        </div>
+      </div>
+
+      <!-- 신고 양식 -->
+      <div class="apply-box report-box" data-e="📋">
+        <div class="apply-box-title">📋 신고 양식</div>
+        <div class="form-template">
+          <div class="tpl-line"><span class="tpl-key">[신고양식]</span></div>
+          <div class="tpl-line"><span class="tpl-key">신고 클랜원 인겜닉</span> <span class="tpl-val">닉네임 작성</span></div>
+          <div class="tpl-line"><span class="tpl-key">상황설명</span> <span class="tpl-val">내용 작성</span></div>
+          <div class="tpl-line"><span class="tpl-key">증거사진</span> <span class="tpl-val">오픈채팅에서 첨부</span></div>
+        </div>
+        <div class="form-note">
+          📌 복사 후 오픈채팅에서 내용 채우고 증거사진 첨부해 주세요<br/>
+          <span>※ 증거사진 없을 시 제재 X</span>
+        </div>
+        <div class="apply-btn-row">
+          <button class="copy-btn" onclick="copyStatic('[신고양식]\n신고 클랜원 인겜닉 : \n상황설명 : \n증거사진 : (첨부)','신고 양식')">📋 양식 복사하기</button>
+          <a href="https://open.kakao.com/o/gl8Uwjoh" target="_blank" class="kakao-btn">💬 오픈채팅 바로가기</a>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+<div id="toast"></div>
+
+<!-- FOOTER -->
+<footer>
+  <div class="flogo">💗 리엘 클랜 💗</div>
+  <div class="fhearts">💕 🌸 ✨ 🌸 💕</div>
+  <p>
+    좀비고등학교 · 리엘 클랜 공식 홍보 페이지<br/>
+    가입 문의: <a href="https://open.kakao.com/o/gl8Uwjoh" target="_blank">💬 오픈채팅 바로가기</a><br/>
+    클랜 블로그: <a href="https://naver.me/G0pV5sRh" target="_blank">💗 리엘 클랜 클모글</a>
+  </p>
+  <p class="fsince">SINCE 2024.10.28 · MASTER 서와 · made by 이라</p>
+</footer>
+
+<button id="scrollTop" onclick="window.scrollTo({top:0,behavior:'smooth'})">↑</button>
+
+<script>
+  /* ═══ SPARKLE CANVAS ═══ */
+  const cv=document.getElementById('fx');
+  const ctx=cv.getContext('2d');
+  function rsz(){cv.width=window.innerWidth;cv.height=window.innerHeight}
+  rsz();window.addEventListener('resize',rsz);
+  const SP=[];
+  const SC=['#f9c5d5','#e8b4d8','#ffd6e7','#f4a7bf','#ffffff','#fce4ec','#ffe0f0'];
+  const SCH=['✦','✧','♡','✿','·','★','❋'];
+  function spawnAt(x,y,n=4){
+    for(let i=0;i<n;i++){
+      SP.push({x,y,vx:(Math.random()-.5)*3.5,vy:-Math.random()*4.5-1,life:1,decay:Math.random()*.025+.018,sz:(Math.random()*5+3)*2,col:SC[Math.floor(Math.random()*SC.length)],ch:SCH[Math.floor(Math.random()*SCH.length)]});
+    }
+  }
+  let lastS=0;
+  document.addEventListener('mousemove',e=>{if(Date.now()-lastS>55){spawnAt(e.clientX,e.clientY);lastS=Date.now();}},{passive:true});
+  document.addEventListener('click',e=>spawnAt(e.clientX,e.clientY,14));
+  (function drawFX(){
+    ctx.clearRect(0,0,cv.width,cv.height);
+    for(let i=SP.length-1;i>=0;i--){
+      const s=SP[i];
+      ctx.save();ctx.globalAlpha=Math.max(0,s.life);ctx.fillStyle=s.col;ctx.font=`${s.sz}px serif`;ctx.fillText(s.ch,s.x,s.y);ctx.restore();
+      s.x+=s.vx;s.y+=s.vy;s.vy+=.13;s.life-=s.decay;
+      if(s.life<=0)SP.splice(i,1);
+    }
+    requestAnimationFrame(drawFX);
+  })();
+
+  /* ═══ SCROLL REVEAL ═══ */
+  const obs=new IntersectionObserver(entries=>{
+    entries.forEach(e=>{
+      if(!e.isIntersecting)return;
+      e.target.classList.add('on');
+      let d=0;
+      e.target.querySelectorAll('.mcard,.icard,.jcard,.hstat').forEach(c=>{c.style.transitionDelay=d+'s';c.classList.add('on');d+=.07});
+    });
+  },{threshold:.08});
+  document.querySelectorAll('.rv').forEach(el=>obs.observe(el));
+
+  /* ═══ SCROLL TOP ═══ */
+  const sb=document.getElementById('scrollTop');
+  window.addEventListener('scroll',()=>sb.classList.toggle('show',scrollY>300),{passive:true});
+
+  /* ═══ NAV ACTIVE ═══ */
+  const secs=document.querySelectorAll('section[id]');
+  const nls=document.querySelectorAll('.nav-links a');
+  window.addEventListener('scroll',()=>{
+    let c='';
+    secs.forEach(s=>{if(scrollY>=s.offsetTop-100)c=s.id});
+    nls.forEach(a=>{
+      const on=a.getAttribute('href')==='#'+c;
+      a.style.background=on?'var(--lt)':'';
+      a.style.color=on?'var(--dp)':'';
+      a.style.borderColor=on?'var(--mid)':'transparent';
+    });
+  },{passive:true});
+
+
+  function copyStatic(text, label){
+    function done(){
+      spawnAt(window.innerWidth/2, window.innerHeight*.6, 18);
+      const t=document.getElementById('toast');
+      t.textContent=`✅ ${label} 복사됐어요! 오픈채팅에 붙여넣기 해주세요 💕`;
+      t.classList.add('show');
+      clearTimeout(t._timer);
+      t._timer=setTimeout(()=>t.classList.remove('show'),2800);
+    }
+    if(navigator.clipboard && window.isSecureContext){
+      navigator.clipboard.writeText(text).then(done).catch(()=>fallback(text,done));
+    } else {
+      fallback(text,done);
+    }
+  }
+  function fallback(text,cb){
+    const ta=document.createElement('textarea');
+    ta.value=text;
+    ta.style.cssText='position:fixed;top:-9999px;left:-9999px;opacity:0;pointer-events:none';
+    document.body.appendChild(ta);
+    ta.focus();ta.select();
+    try{document.execCommand('copy');cb();}
+    catch(e){alert('복사에 실패했어요. 양식을 직접 선택해서 복사해 주세요!');}
+    document.body.removeChild(ta);
+  }
+</script>
+</body>
+</html>
